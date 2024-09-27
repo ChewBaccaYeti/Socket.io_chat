@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "react-app",
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["react", "prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "react/prop-types": "off", // If I am not using prop-types
+    "react/react-in-jsx-scope": "off" // You don't need that config in new versions of React
+  }
+}
