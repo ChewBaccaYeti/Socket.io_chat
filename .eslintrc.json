@@ -7,8 +7,17 @@
   ],
   "plugins": ["react", "prettier"],
   "rules": {
-    "prettier/prettier": "error",
-    "react/prop-types": "off", // If I am not using prop-types
-    "react/react-in-jsx-scope": "off" // You don't need that config in new versions of React
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "printWidth": 80,
+        "tabWidth": 2,
+        "jsxSingleQuote": false,
+        "endOfLine": "auto"
+      }
+    ],
+    "react/prop-types": "off",
+    "react/react-in-jsx-scope": "off"
   }
 }
