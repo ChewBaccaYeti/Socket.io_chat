@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
+import CssBaseline from '@mui/material/CssBaseline';
+import GlobalStyles from '@mui/material/GlobalStyles';
 import {
   Container,
   Box,
@@ -10,23 +12,41 @@ import {
   ListItemText,
   Typography,
   Paper,
+  IconButton,
 } from '@mui/material';
+import { DeleteForever } from '@mui/icons-material';
 
 export default function Chat() {
   const port = 'http://localhost:4000';
   const [socket] = useState(() => io(port)); // Подключение к WebSocket-серверу
-  const [users, setUsers] = useState({});
+  const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [name, setName] = useState('Anonymous');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    socket.on('user', (data) => {
-      setUsers(data);
+    socket.on('user', (newUsers) => {
+      console.log('Received Users:', newUsers); // выводим в консоль полученные данные
+      console.log('Type of newUsers:', typeof newUsers); // выводим тип данных
+      console.log('New User:', newUsers);
+      if (Array.isArray(newUsers)) {
+        setUsers(newUsers);
+      } else {
+        console.warn('Received invalid user data:', newUsers);
+      }
     });
 
     socket.on('message', (message) => {
-      setMessages((prevMessage) => [message, ...prevMessage.slice(0, 9)]); // restriction from 10 messages only
+      console.log('New Message:', message);
+      if (
+        message &&
+        typeof message.name === 'string' &&
+        typeof message.message === 'string'
+      ) {
+        setMessages((prevMessage) => [message, ...prevMessage.slice(0, 9)]); // restriction from 10 messages only
+      } else {
+        console.warn('Received invalid message data:', message);
+      }
     });
     // Отписываемся от событий при размонтировании компонента
     return () => {
@@ -49,8 +69,25 @@ export default function Chat() {
     }
   };
 
+  const removeUser = (userToRemove) => {
+    setUsers((prevUsers) => prevUsers.filter((user) => user !== userToRemove));
+  };
+
   return (
-    <Container maxWidth="lg" style={{ padding: '2rem' }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        marginTop: '2em',
+        padding: '4rem',
+        borderRadius: '12px',
+        bgcolor: '#ffca7b',
+        '&:hover': {
+          bgcolor: '#ffd54f',
+        },
+      }}
+    >
+      <CssBaseline enableColorScheme />
+      <GlobalStyles />
       <Typography variant="h4" gutterBottom>
         Chat
       </Typography>
@@ -59,9 +96,16 @@ export default function Chat() {
           <Typography variant="h6">Users in chat</Typography>
           <Paper style={{ maxHeight: 300, overflow: 'auto' }}>
             <List>
-              {Object.values(users).map((user, index) => (
+              {users.map((user, index) => (
                 <ListItem key={index}>
                   <ListItemText primary={user} />
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    onClick={() => removeUser(user)}
+                  >
+                    <DeleteForever />
+                  </IconButton>
                 </ListItem>
               ))}
             </List>

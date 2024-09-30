@@ -22,7 +22,7 @@ server.listen(PORT, () => {
 app.use(cors({ origin: process.env.CLIENT_PORT })); // Подключение CORS для возможности работы с другим доменом/портом
 app.use(express.static(__dirname + '/public')); // Статические файлы
 
-const users = {};
+const users = new Set(); // создаю набор уникальный никнеймов
 
 io.sockets.on('connection', (client) => {
   const broadcast = (event, data) => {
@@ -30,19 +30,26 @@ io.sockets.on('connection', (client) => {
     client.broadcast.emit(event, data);
   };
 
-  broadcast('user', users);
+  // Когда клиент подключается, отправляем список пользователей
+  broadcast('user', Array.from(users));
 
   client.on('message', (message) => {
-    if (users[client.id] !== message.name) {
-      users[client.id] = message.name;
-      broadcast('user', users);
+    if (!users.has(message.name)) {
+      users.add(message.name); // Добавляем уникальный никнейм
+      broadcast('user', Array.from(users)); // Отправляем обновленный список пользователей
     }
 
+    // Отправляем сообщение
     broadcast('message', message);
   });
 
   client.on('disconnect', () => {
-    delete users[client.id];
-    client.broadcast.emit('user', users);
+    users.forEach((user) => {
+      if (user === message.name) {
+        users.delete.apply(user);
+      }
+    });
+
+    broadcast('user', Array.from(users));
   });
 });
