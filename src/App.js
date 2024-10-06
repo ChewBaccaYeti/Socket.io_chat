@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Chat from './components/Chat';
+import AuthModal from './components/Modal';
 // import logo from './logo.svg';
 import './App.css';
 
 function App() {
+  const [authenticated, setAuthenticated] = useState(false);
+
+  const handleAuthSuccess = () => {
+    setAuthenticated(true);
+  };
+
   return (
-    <div className="App">
+    <div className='App'>
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <a
@@ -17,7 +24,7 @@ function App() {
           Learn React
         </a>
       </header> */}
-      <Chat />
+      {!authenticated ? <AuthModal onSubmit={handleAuthSuccess} /> : <Chat />}
     </div>
   );
 }
